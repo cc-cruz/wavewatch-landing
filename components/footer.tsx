@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export function Footer() {
@@ -7,7 +8,13 @@ export function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-5 h-5 bg-foreground" />
+              <Image
+                src="/wavewatch-logo-light.png"
+                alt="WaveWatch logo"
+                width={24}
+                height={24}
+                className="h-6 w-auto"
+              />
               <span className="font-medium text-sm tracking-tight">WaveWatch</span>
             </div>
             <p className="text-sm text-muted-foreground">

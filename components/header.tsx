@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import Image from "next/image";
 import Link from "next/link";
 
 export function Header() {
@@ -9,7 +10,13 @@ export function Header() {
     <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
       <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <div className="w-5 h-5 bg-foreground" />
+          <Image
+            src="/wavewatch-logo-light.png"
+            alt="WaveWatch logo"
+            width={24}
+            height={24}
+            className="h-6 w-auto"
+          />
           <span className="font-medium text-sm tracking-tight">WaveWatch</span>
         </Link>
 
