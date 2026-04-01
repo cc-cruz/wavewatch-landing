@@ -242,6 +242,22 @@ export default function Page() {
             <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Interface Preview</p>
             <h2 className="text-2xl md:text-3xl font-semibold mb-8">What you can ask</h2>
             {mounted && <DemoInterface />}
+            <div className="mt-8 border border-border bg-card p-4">
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider">Embed Test</p>
+                <p className="text-xs text-muted-foreground">Temporary Pickaxe iframe for bug testing</p>
+              </div>
+              <div className="flex justify-center">
+                <iframe
+                  id="pickaxe-embed-deployment-faa33d7c-4ec3-4a97-a4ad-1d6883d0bd7a"
+                  title="WaveWatch Pickaxe embed test"
+                  src="https://wavewatch.dev/_embed/J0L2TAVU2S?d=deployment-faa33d7c-4ec3-4a97-a4ad-1d6883d0bd7a"
+                  className="w-full max-w-[700px]"
+                  style={{ height: "854px", border: 0, borderRadius: 0 }}
+                  allow="microphone"
+                />
+              </div>
+            </div>
           </div>
         </section>
 
