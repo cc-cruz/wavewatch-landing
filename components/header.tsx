@@ -13,9 +13,9 @@ export function Header() {
           <Image
             src="/wavewatch-logo-light.png"
             alt="WaveWatch logo"
-            width={24}
-            height={24}
-            className="h-6 w-auto"
+            width={32}
+            height={32}
+            className="h-8 w-auto"
           />
           <span className="font-medium text-sm tracking-tight">WaveWatch</span>
         </Link>
