@@ -1,73 +1,188 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 
 // Prompt chip component
-function PromptChip({ text, onClick }: { text: string; onClick: () => void }) {
+function PromptChip({
+  text,
+  onClick,
+  isActive,
+}: {
+  text: string;
+  onClick: () => void;
+  isActive: boolean;
+}) {
   return (
     <button
       onClick={onClick}
-      className="px-3 py-2 text-sm text-left bg-card border border-border hover:bg-accent hover:text-accent-foreground transition-colors"
+      className={`px-3 py-2 text-sm text-left border transition-colors ${
+        isActive
+          ? "bg-foreground text-background border-foreground"
+          : "bg-card border-border hover:bg-accent hover:text-accent-foreground"
+      }`}
     >
       {text}
     </button>
   );
 }
 
-// Simulated response data
-const responses: Record<string, { summary: string; window: string; risk: string; why: string; confidence: string }> = {
-  "Is Ocean Beach good at first light tomorrow?": {
-    summary: "Marginal. Short-period NW windswell with moderate onshore flow developing.",
-    window: "6:10 - 7:45am",
-    risk: "Wind texture by 8am",
-    why: "Tide dropping through low favors shape, but 8s period limits quality",
-    confidence: "Medium",
-  },
-  "Can I run a small boat out of Bodega at 6am?": {
-    summary: "Fishable window exists. Bar conditions moderate, deteriorating by midday.",
-    window: "5:30 - 10:00am",
-    risk: "Building NW swell, 15kt+ by noon",
-    why: "Morning ebb creates favorable bar transit. Return before wind shift.",
-    confidence: "Medium-High",
-  },
-  "Will north wind kill viz this afternoon?": {
-    summary: "Likely. North flow stirs nearshore particulate and pushes surface debris south.",
-    window: "Morning before 11am",
-    risk: "Sub-10ft viz by 2pm",
-    why: "Upwelling signature plus wind-driven mixing. Better tomorrow AM.",
-    confidence: "High",
-  },
-  "Best spearfishing window this weekend?": {
-    summary: "Sunday dawn. Minimal swell, slack tide, light wind forecast.",
-    window: "Saturday: Poor | Sunday: 6:00 - 9:30am",
-    risk: "Saturday afternoon surge",
-    why: "Swell drops overnight Sat. Sunday AM offers 15-20ft viz window.",
-    confidence: "Medium-High",
-  },
+type MarineResponse = {
+  summary: string;
+  window: string;
+  risk: string;
+  why: string;
+  confidence: string;
 };
+
+const examplePrompts = [
+  "Is Ocean Beach good at first light tomorrow?",
+  "Can I run a small boat out of Bodega at 6am?",
+  "Will north wind kill viz this afternoon?",
+  "Best spearfishing window this weekend?",
+];
+
+const loadingMessages = [
+  "Processing",
+  "asking the buoys what changed",
+  "reading the swell picture",
+  "comparing tide windows",
+  "looking for the clean hour",
+  "checking when the wind turns",
+  "checking bar conditions",
+  "looking for the fishable gap",
+  "building the go/no-go call",
+];
+
+function buildFallbackResponse(summary: string, why = "Pickaxe API request failed."): MarineResponse {
+  return {
+    summary,
+    window: "Unavailable",
+    risk: "Unavailable",
+    why,
+    confidence: "Unknown",
+  };
+}
 
 // Demo interface component
 function DemoInterface() {
+  const userIdRef = useRef(`wavewatch-demo-${Math.random().toString(36).slice(2)}`);
+  const requestIdRef = useRef(0);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
+  const [response, setResponse] = useState<MarineResponse | null>(null);
   const [isTyping, setIsTyping] = useState(false);
-  const [showResponse, setShowResponse] = useState(false);
+  const [loadingText, setLoadingText] = useState("");
 
-  const prompts = Object.keys(responses);
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, []);
 
-  const handlePromptClick = (prompt: string) => {
+  useEffect(() => {
+    if (!isTyping) {
+      setLoadingText("");
+      return;
+    }
+
+    let timeoutId: ReturnType<typeof setTimeout>;
+    let messageIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+
+    const tick = () => {
+      const currentMessage = loadingMessages[messageIndex];
+
+      if (isDeleting) {
+        charIndex -= 1;
+        setLoadingText(currentMessage.slice(0, Math.max(0, charIndex)));
+
+        if (charIndex <= 0) {
+          isDeleting = false;
+          messageIndex = (messageIndex + 1) % loadingMessages.length;
+          timeoutId = setTimeout(tick, 120);
+          return;
+        }
+
+        timeoutId = setTimeout(tick, 16);
+        return;
+      }
+
+      charIndex += 1;
+      setLoadingText(currentMessage.slice(0, charIndex));
+
+      if (charIndex >= currentMessage.length) {
+        isDeleting = true;
+        timeoutId = setTimeout(tick, messageIndex === 0 ? 450 : 900);
+        return;
+      }
+
+      timeoutId = setTimeout(tick, 32);
+    };
+
+    tick();
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [isTyping]);
+
+  const handlePromptClick = async (prompt: string) => {
+    const requestId = ++requestIdRef.current;
+    abortControllerRef.current?.abort();
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
     setSelectedPrompt(prompt);
-    setShowResponse(false);
+    setResponse(null);
     setIsTyping(true);
-    setTimeout(() => {
-      setIsTyping(false);
-      setShowResponse(true);
-    }, 800);
-  };
+    try {
+      const apiResponse = await fetch("/api/pickaxe", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: prompt,
+          userId: userIdRef.current,
+        }),
+        signal: controller.signal,
+      });
 
-  const response = selectedPrompt ? responses[selectedPrompt] : null;
+      const data = await apiResponse.json();
+
+      if (!apiResponse.ok) {
+        throw new Error(data?.error || "Pickaxe request failed.");
+      }
+
+      if (requestId !== requestIdRef.current) {
+        return;
+      }
+
+      setResponse(data.structured);
+    } catch (error) {
+      if (requestId !== requestIdRef.current) {
+        return;
+      }
+
+      if (error instanceof Error && error.name === "AbortError") {
+        return;
+      }
+
+      setResponse(
+        buildFallbackResponse(
+          "The live preview is temporarily unavailable.",
+          error instanceof Error ? error.message : "Pickaxe request failed.",
+        ),
+      );
+    } finally {
+      if (requestId === requestIdRef.current) {
+        setIsTyping(false);
+      }
+    }
+  };
 
   return (
     <div className="border border-border bg-card">
@@ -84,8 +199,13 @@ function DemoInterface() {
       <div className="p-4 border-b border-border">
         <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">Example queries</p>
         <div className="flex flex-wrap gap-2">
-          {prompts.map((prompt) => (
-            <PromptChip key={prompt} text={prompt} onClick={() => handlePromptClick(prompt)} />
+          {examplePrompts.map((prompt) => (
+            <PromptChip
+              key={prompt}
+              text={prompt}
+              onClick={() => handlePromptClick(prompt)}
+              isActive={selectedPrompt === prompt}
+            />
           ))}
         </div>
       </div>
@@ -96,14 +216,28 @@ function DemoInterface() {
           <p className="text-muted-foreground text-sm">Select a query above to see response format</p>
         )}
 
-        {isTyping && (
+        {selectedPrompt && !response && (
+          <div className="space-y-4">
+            <div>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Query</p>
+              <p className="text-foreground">{selectedPrompt}</p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground text-sm">{loadingText}</span>
+              <span className="animate-pulse">_</span>
+            </div>
+          </div>
+        )}
+
+        {isTyping && !selectedPrompt && (
           <div className="flex items-center gap-2">
-            <span className="text-muted-foreground text-sm">Processing</span>
+            <span className="text-muted-foreground text-sm">{loadingText}</span>
             <span className="animate-pulse">_</span>
           </div>
         )}
 
-        {showResponse && response && (
+        {response && (
           <div className="space-y-4">
             <div>
               <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Query</p>
@@ -242,22 +376,6 @@ export default function Page() {
             <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Interface Preview</p>
             <h2 className="text-2xl md:text-3xl font-semibold mb-8">What you can ask</h2>
             {mounted && <DemoInterface />}
-            <div className="mt-8 border border-border bg-card p-4">
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <p className="text-xs text-muted-foreground uppercase tracking-wider">Embed Test</p>
-                <p className="text-xs text-muted-foreground">Temporary Pickaxe iframe for bug testing</p>
-              </div>
-              <div className="flex justify-center">
-                <iframe
-                  id="pickaxe-embed-deployment-faa33d7c-4ec3-4a97-a4ad-1d6883d0bd7a"
-                  title="WaveWatch Pickaxe embed test"
-                  src="https://wavewatch.dev/_embed/J0L2TAVU2S?d=deployment-faa33d7c-4ec3-4a97-a4ad-1d6883d0bd7a"
-                  className="w-full max-w-[700px]"
-                  style={{ height: "854px", border: 0, borderRadius: 0 }}
-                  allow="microphone"
-                />
-              </div>
-            </div>
           </div>
         </section>
 
