@@ -24,6 +24,9 @@ export function Header() {
           <Link href="#demo" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
             Demo
           </Link>
+          <Link href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            Pricing
+          </Link>
           <Link href="#use-cases" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
             Use Cases
           </Link>
@@ -37,7 +40,9 @@ export function Header() {
           <Button variant="ghost" size="sm" className="hidden sm:inline-flex">
             Log in
           </Button>
-          <Button size="sm">Try it live</Button>
+          <Button asChild size="sm">
+            <Link href="/console">Try it live</Link>
+          </Button>
         </div>
       </div>
     </header>

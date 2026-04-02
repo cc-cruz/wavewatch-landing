@@ -11,8 +11,8 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import Link from "next/link";
 
-// Prompt chip component
 function PromptChip({
   text,
   onClick,
@@ -99,7 +99,10 @@ const loadingMessages = [
   "building the go/no-go call",
 ];
 
-function buildFallbackResponse(summary: string, why = "Pickaxe API request failed."): MarineResponse {
+function buildFallbackResponse(
+  summary: string,
+  why = "Pickaxe API request failed.",
+): MarineResponse {
   return {
     summary,
     window: "Unavailable",
@@ -109,7 +112,6 @@ function buildFallbackResponse(summary: string, why = "Pickaxe API request faile
   };
 }
 
-// Demo interface component
 function DemoInterface() {
   const userIdRef = useRef(`wavewatch-demo-${Math.random().toString(36).slice(2)}`);
   const requestIdRef = useRef(0);
@@ -386,19 +388,21 @@ function DemoInterface() {
 
   return (
     <div className="border border-border bg-card">
-      {/* Terminal header */}
       <div className="border-b border-border px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 bg-muted-foreground" />
-          <span className="text-xs text-muted-foreground uppercase tracking-wider">Marine Query Interface</span>
+          <span className="text-xs text-muted-foreground uppercase tracking-wider">
+            Marine Query Interface
+          </span>
         </div>
         <span className="text-xs text-muted-foreground">v0.9.2</span>
       </div>
 
-      {/* Prompt chips */}
       <div className="p-4 border-b border-border">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs text-muted-foreground uppercase tracking-wider">Example queries</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-wider">
+            Example queries
+          </p>
           {locationSource === "browser" ? (
             <span className="text-[11px] text-muted-foreground uppercase tracking-wider">
               Using exact location
@@ -427,21 +431,26 @@ function DemoInterface() {
         </div>
       </div>
 
-      {/* Response area */}
       <div className="p-4 min-h-[200px]">
         {!selectedPrompt && (
-          <p className="text-muted-foreground text-sm">Select a query above to see response format</p>
+          <p className="text-muted-foreground text-sm">
+            Select a query above to see response format
+          </p>
         )}
 
         {selectedPrompt && !response && (
           <div className="space-y-4">
             <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Query</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                Query
+              </p>
               <p className="text-foreground">{selectedPrompt}</p>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-muted-foreground text-sm">{loadingText}</span>
+              <span className="text-muted-foreground text-sm">
+                {loadingText}
+              </span>
               <span className="animate-pulse">_</span>
             </div>
           </div>
@@ -457,32 +466,46 @@ function DemoInterface() {
         {response && (
           <div className="space-y-4">
             <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Query</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                Query
+              </p>
               <p className="text-foreground">{selectedPrompt}</p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Summary</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                  Summary
+                </p>
                 <p className="text-sm text-foreground">{response.summary}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Best Window</p>
-                <p className="text-sm text-foreground font-medium">{response.window}</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                  Best Window
+                </p>
+                <p className="text-sm text-foreground font-medium">
+                  {response.window}
+                </p>
               </div>
             </div>
 
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Primary Risk</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                  Primary Risk
+                </p>
                 <p className="text-sm text-foreground">{response.risk}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Why</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                  Why
+                </p>
                 <p className="text-sm text-foreground">{response.why}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Confidence</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                  Confidence
+                </p>
                 <p className="text-sm text-foreground">{response.confidence}</p>
               </div>
             </div>
@@ -493,19 +516,35 @@ function DemoInterface() {
   );
 }
 
-// Use case card
-function UseCaseCard({ title, query, description }: { title: string; query: string; description: string }) {
+function UseCaseCard({
+  title,
+  query,
+  description,
+}: {
+  title: string;
+  query: string;
+  description: string;
+}) {
   return (
     <div className="border border-border p-6 bg-card hover:bg-accent/50 transition-colors">
-      <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">{title}</p>
+      <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
+        {title}
+      </p>
       <p className="text-foreground font-medium mb-3">&quot;{query}&quot;</p>
       <p className="text-sm text-muted-foreground">{description}</p>
     </div>
   );
 }
 
-// Feature block
-function FeatureBlock({ number, title, description }: { number: string; title: string; description: string }) {
+function FeatureBlock({
+  number,
+  title,
+  description,
+}: {
+  number: string;
+  title: string;
+  description: string;
+}) {
   return (
     <div className="flex gap-4">
       <span className="text-xs text-muted-foreground font-medium">{number}</span>
@@ -517,7 +556,6 @@ function FeatureBlock({ number, title, description }: { number: string; title: s
   );
 }
 
-// Grid background pattern
 function GridPattern() {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.03]">
@@ -533,7 +571,6 @@ function GridPattern() {
   );
 }
 
-// Animated wave lines for hero
 function WaveLines() {
   return (
     <div className="absolute bottom-0 left-0 right-0 h-32 overflow-hidden pointer-events-none opacity-10">
@@ -559,25 +596,27 @@ export default function Page() {
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       <Header />
       <main className="flex-1">
-        {/* Hero Section */}
         <section className="relative border-b border-border">
           <GridPattern />
           <WaveLines />
           <div className="relative max-w-5xl mx-auto px-6 py-24 md:py-32">
             <div className="max-w-3xl">
-              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-4">Marine Intelligence Platform</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-4">
+                Marine Intelligence Platform
+              </p>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-balance">
                 Ask the ocean a question.
                 <br />
                 <span className="text-muted-foreground">Get a real answer.</span>
               </h1>
               <p className="text-lg text-muted-foreground mb-8 max-w-2xl text-pretty">
-                WaveWatch turns swell, wind, tide, weather, and local context into actionable
-                guidance for surfers, fishermen, divers, sailors, and coastal operators.
+                WaveWatch turns swell, wind, tide, weather, and local context
+                into actionable guidance for surfers, fishermen, divers,
+                sailors, and coastal operators.
               </p>
               <div className="flex flex-wrap gap-3">
-                <Button size="lg" className="px-6">
-                  Try it live
+                <Button asChild size="lg" className="px-6">
+                  <Link href="/console">Try it live</Link>
                 </Button>
                 <Button variant="outline" size="lg" className="px-6">
                   Deploy for your team
@@ -587,65 +626,88 @@ export default function Page() {
           </div>
         </section>
 
-        {/* Demo Section */}
         <section className="border-b border-border bg-muted/20">
           <div className="max-w-5xl mx-auto px-6 py-16 md:py-24">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Interface Preview</p>
-            <h2 className="text-2xl md:text-3xl font-semibold mb-8">What you can ask</h2>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
+              Interface Preview
+            </p>
+            <h2 className="text-2xl md:text-3xl font-semibold mb-8">
+              What you can ask
+            </h2>
             {mounted && <DemoInterface />}
           </div>
         </section>
 
-        {/* Problem Section */}
         <section className="border-b border-border">
           <div className="max-w-5xl mx-auto px-6 py-16 md:py-24">
             <div className="max-w-2xl mb-12">
-              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">The Problem</p>
-              <h2 className="text-2xl md:text-3xl font-semibold mb-4">Marine forecasting is fragmented.</h2>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
+                The Problem
+              </p>
+              <h2 className="text-2xl md:text-3xl font-semibold mb-4">
+                Marine forecasting is fragmented.
+              </h2>
               <p className="text-muted-foreground">
-                People planning around the water are forced to bounce between charts, buoy feeds, tide tables, weather
-                models, cams, and gut feel—then translate all of it into a call.
+                People planning around the water are forced to bounce between
+                charts, buoy feeds, tide tables, weather models, cams, and gut
+                feel and then translate all of it into a call.
               </p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-6">
               <div className="border border-border p-6">
-                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">01</p>
-                <h3 className="text-foreground font-medium mb-2">Too many sources</h3>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
+                  01
+                </p>
+                <h3 className="text-foreground font-medium mb-2">
+                  Too many sources
+                </h3>
                 <p className="text-sm text-muted-foreground">
-                  Forecasts live across too many tools. Surfline. NOAA. Windy. Buoys. Tide charts. Cams. WhatsApp threads.
+                  Forecasts live across too many tools. Surfline. NOAA. Windy.
+                  Buoys. Tide charts. Cams. WhatsApp threads.
                 </p>
               </div>
               <div className="border border-border p-6">
-                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">02</p>
-                <h3 className="text-foreground font-medium mb-2">Too much interpretation</h3>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
+                  02
+                </p>
+                <h3 className="text-foreground font-medium mb-2">
+                  Too much interpretation
+                </h3>
                 <p className="text-sm text-muted-foreground">
-                  Raw conditions don&apos;t tell you whether it&apos;s actually worth going. You still have to do the
-                  math.
+                  Raw conditions don&apos;t tell you whether it&apos;s actually
+                  worth going. You still have to do the math.
                 </p>
               </div>
               <div className="border border-border p-6">
-                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">03</p>
-                <h3 className="text-foreground font-medium mb-2">Too little context</h3>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
+                  03
+                </p>
+                <h3 className="text-foreground font-medium mb-2">
+                  Too little context
+                </h3>
                 <p className="text-sm text-muted-foreground">
-                  Surfable, fishable, divable, or safe depends on the activity, spot, timing, and user. Charts
-                  don&apos;t know any of that.
+                  Surfable, fishable, divable, or safe depends on the activity,
+                  spot, timing, and user. Charts don&apos;t know any of that.
                 </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Solution Section */}
         <section className="border-b border-border bg-muted/20">
           <div className="max-w-5xl mx-auto px-6 py-16 md:py-24">
             <div className="grid md:grid-cols-2 gap-12 md:gap-16">
               <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">The Solution</p>
-                <h2 className="text-2xl md:text-3xl font-semibold mb-4">One interface. Real marine context.</h2>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
+                  The Solution
+                </p>
+                <h2 className="text-2xl md:text-3xl font-semibold mb-4">
+                  One interface. Real marine context.
+                </h2>
                 <p className="text-muted-foreground mb-8">
-                  Ask in plain language. Get answers shaped around the activity, the window, and the conditions that
-                  actually matter.
+                  Ask in plain language. Get answers shaped around the activity,
+                  the window, and the conditions that actually matter.
                 </p>
               </div>
 
@@ -663,23 +725,26 @@ export default function Page() {
                 <FeatureBlock
                   number="03"
                   title="Activity-aware answers"
-                  description="Surfing, fishing, diving, boating, sailing—responses adapt to what you&apos;re actually trying to do."
+                  description="Surfing, fishing, diving, boating, sailing responses adapt to what you are actually trying to do."
                 />
                 <FeatureBlock
                   number="04"
                   title="Window-based recommendations"
-                  description="Not just conditions—timing, tradeoffs, and confidence levels."
+                  description="Not just conditions timing, tradeoffs, and confidence levels."
                 />
               </div>
             </div>
           </div>
         </section>
 
-        {/* Use Cases Section */}
         <section className="border-b border-border">
           <div className="max-w-5xl mx-auto px-6 py-16 md:py-24">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Use Cases</p>
-            <h2 className="text-2xl md:text-3xl font-semibold mb-8">Built for people who make decisions on the water.</h2>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
+              Use Cases
+            </p>
+            <h2 className="text-2xl md:text-3xl font-semibold mb-8">
+              Built for people who make decisions on the water.
+            </h2>
 
             <div className="grid md:grid-cols-2 gap-4">
               <UseCaseCard
@@ -716,97 +781,127 @@ export default function Page() {
           </div>
         </section>
 
-        {/* Differentiation Section */}
         <section className="border-b border-border bg-muted/20">
           <div className="max-w-5xl mx-auto px-6 py-16 md:py-24">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Why It&apos;s Different</p>
-            <h2 className="text-2xl md:text-3xl font-semibold mb-12">More than a forecast app.</h2>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
+              Why It&apos;s Different
+            </p>
+            <h2 className="text-2xl md:text-3xl font-semibold mb-12">
+              More than a forecast app.
+            </h2>
 
             <div className="grid md:grid-cols-2 gap-x-12 gap-y-8">
               <div>
-                <p className="text-foreground font-medium mb-1">It doesn&apos;t just show conditions</p>
-                <p className="text-sm text-muted-foreground">It interprets them—fast.</p>
+                <p className="text-foreground font-medium mb-1">
+                  It doesn&apos;t just show conditions
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  It interprets them fast.
+                </p>
               </div>
               <div>
-                <p className="text-foreground font-medium mb-1">It doesn&apos;t just answer generally</p>
-                <p className="text-sm text-muted-foreground">It answers in context of your activity.</p>
+                <p className="text-foreground font-medium mb-1">
+                  It doesn&apos;t just answer generally
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  It answers in context of your activity.
+                </p>
               </div>
               <div>
-                <p className="text-foreground font-medium mb-1">It doesn&apos;t just serve individuals</p>
-                <p className="text-sm text-muted-foreground">It can be deployed for crews, operators, and guides.</p>
+                <p className="text-foreground font-medium mb-1">
+                  It doesn&apos;t just serve individuals
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  It can be deployed for crews, operators, and guides.
+                </p>
               </div>
               <div>
-                <p className="text-foreground font-medium mb-1">It doesn&apos;t just expose raw models</p>
-                <p className="text-sm text-muted-foreground">It creates decision support.</p>
+                <p className="text-foreground font-medium mb-1">
+                  It doesn&apos;t just expose raw models
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  It creates decision support.
+                </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Enterprise Section */}
         <section className="border-b border-border">
           <div className="max-w-5xl mx-auto px-6 py-16 md:py-24">
             <div className="grid md:grid-cols-2 gap-12">
               <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">For Teams</p>
-                <h2 className="text-2xl md:text-3xl font-semibold mb-4">Deployable for specialized operations.</h2>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
+                  For Teams
+                </p>
+                <h2 className="text-2xl md:text-3xl font-semibold mb-4">
+                  Deployable for specialized operations.
+                </h2>
                 <p className="text-muted-foreground mb-6">
-                  Need a marine intelligence layer tuned to your coastline, fleet, customer base, or operating model? This
-                  system can be configured around custom geographies, data sources, response logic, and workflows.
+                  Need a marine intelligence layer tuned to your coastline,
+                  fleet, customer base, or operating model? This system can be
+                  configured around custom geographies, data sources, response
+                  logic, and workflows.
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Powered by a forward-deployed OpenClaw runtime for domain-specific reasoning and configurable
-                  deployment.
+                  Powered by a forward-deployed OpenClaw runtime for
+                  domain-specific reasoning and configurable deployment.
                 </p>
               </div>
 
               <div className="space-y-4">
-                <div className="border border-border p-4 flex items-start gap-3">
-                  <span className="text-xs text-muted-foreground">—</span>
-                  <p className="text-sm text-foreground">Regional deployments tuned to local conditions</p>
-                </div>
-                <div className="border border-border p-4 flex items-start gap-3">
-                  <span className="text-xs text-muted-foreground">—</span>
-                  <p className="text-sm text-foreground">Custom prompt and policy layer</p>
-                </div>
-                <div className="border border-border p-4 flex items-start gap-3">
-                  <span className="text-xs text-muted-foreground">—</span>
-                  <p className="text-sm text-foreground">Proprietary knowledge integration</p>
-                </div>
-                <div className="border border-border p-4 flex items-start gap-3">
-                  <span className="text-xs text-muted-foreground">—</span>
-                  <p className="text-sm text-foreground">Private operational environments</p>
-                </div>
-                <div className="border border-border p-4 flex items-start gap-3">
-                  <span className="text-xs text-muted-foreground">—</span>
-                  <p className="text-sm text-foreground">Team usage and shared workflows</p>
-                </div>
+                {[
+                  "Regional deployments tuned to local conditions",
+                  "Custom prompt and policy layer",
+                  "Proprietary knowledge integration",
+                  "Private operational environments",
+                  "Team usage and shared workflows",
+                ].map((item) => (
+                  <div
+                    key={item}
+                    className="border border-border p-4 flex items-start gap-3"
+                  >
+                    <span className="text-xs text-muted-foreground">-</span>
+                    <p className="text-sm text-foreground">{item}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </section>
 
-        {/* Trust Section */}
         <section className="border-b border-border bg-muted/20">
           <div className="max-w-5xl mx-auto px-6 py-16 md:py-24">
             <div className="max-w-2xl">
-              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Philosophy</p>
-              <h2 className="text-2xl md:text-3xl font-semibold mb-4">Built for informed decisions, not blind trust.</h2>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
+                Philosophy
+              </p>
+              <h2 className="text-2xl md:text-3xl font-semibold mb-4">
+                Built for informed decisions, not blind trust.
+              </h2>
               <p className="text-muted-foreground mb-6">
-                The platform is designed to help interpret marine conditions faster and more clearly. It should support
-                judgment—not replace seamanship, local knowledge, or safety procedures.
+                The platform is designed to help interpret marine conditions
+                faster and more clearly. It should support judgment not replace
+                seamanship, local knowledge, or safety procedures.
               </p>
               <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                <span className="border border-border px-3 py-1">Forecast confidence indicators</span>
-                <span className="border border-border px-3 py-1">Source transparency</span>
-                <span className="border border-border px-3 py-1">Uncertainty acknowledgement</span>
-                <span className="border border-border px-3 py-1">Local variability disclaimers</span>
+                <span className="border border-border px-3 py-1">
+                  Forecast confidence indicators
+                </span>
+                <span className="border border-border px-3 py-1">
+                  Source transparency
+                </span>
+                <span className="border border-border px-3 py-1">
+                  Uncertainty acknowledgement
+                </span>
+                <span className="border border-border px-3 py-1">
+                  Local variability disclaimers
+                </span>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Final CTA Section */}
         <section className="relative">
           <GridPattern />
           <div className="relative max-w-5xl mx-auto px-6 py-24 md:py-32">
@@ -814,11 +909,13 @@ export default function Page() {
               <h2 className="text-3xl md:text-4xl font-semibold mb-4 text-balance">
                 Spend less time decoding forecasts.
                 <br />
-                <span className="text-muted-foreground">More time making the call.</span>
+                <span className="text-muted-foreground">
+                  More time making the call.
+                </span>
               </h2>
               <div className="flex flex-wrap gap-3 mt-8">
-                <Button size="lg" className="px-6">
-                  Try the live demo
+                <Button asChild size="lg" className="px-6">
+                  <Link href="/console">Try the live demo</Link>
                 </Button>
                 <Button variant="outline" size="lg" className="px-6">
                   Talk to us about deployment
