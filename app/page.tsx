@@ -1,5 +1,12 @@
 "use client";
 
+import {
+  findNearestMarineRegion,
+  getDefaultMarinePromptSet,
+  getDefaultMarineRegion,
+  getMarineRegionById,
+  resolveMarinePromptSet,
+} from "@/lib/marine-regions";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/header";
@@ -37,12 +44,48 @@ type MarineResponse = {
   confidence: string;
 };
 
-const examplePrompts = [
-  "Is Ocean Beach good at first light tomorrow?",
-  "Can I run a small boat out of Bodega at 6am?",
-  "Will north wind kill viz this afternoon?",
-  "Best spearfishing window this weekend?",
-];
+type LocationSource =
+  | "browser"
+  | "cache"
+  | "server-header"
+  | "server-ip"
+  | "default";
+
+type LocationApiResponse = {
+  source: Exclude<LocationSource, "browser">;
+  regionId: string;
+  regionLabel: string;
+  prompts: string[];
+  city: string | null;
+  region: string | null;
+  country: string | null;
+  distanceKm: number | null;
+};
+
+type CachedRegion = {
+  id: string;
+  source: LocationSource;
+  resolvedAt: number;
+};
+
+const regionStorageKey = "wavewatch-demo-region";
+const regionCacheTtlMs = 1000 * 60 * 60 * 12;
+
+function getLocationSourcePriority(source: LocationSource) {
+  switch (source) {
+    case "browser":
+      return 4;
+    case "server-header":
+      return 3;
+    case "cache":
+      return 2;
+    case "server-ip":
+      return 1;
+    case "default":
+    default:
+      return 0;
+  }
+}
 
 const loadingMessages = [
   "Processing",
@@ -71,6 +114,10 @@ function DemoInterface() {
   const userIdRef = useRef(`wavewatch-demo-${Math.random().toString(36).slice(2)}`);
   const requestIdRef = useRef(0);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const locationPriorityRef = useRef(getLocationSourcePriority("default"));
+  const [activeRegion, setActiveRegion] = useState(getDefaultMarineRegion());
+  const [locationSource, setLocationSource] = useState<LocationSource>("default");
+  const [isResolvingExactLocation, setIsResolvingExactLocation] = useState(false);
   const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
   const [response, setResponse] = useState<MarineResponse | null>(null);
   const [isTyping, setIsTyping] = useState(false);
@@ -79,6 +126,115 @@ function DemoInterface() {
   useEffect(() => {
     return () => {
       abortControllerRef.current?.abort();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    let ignore = false;
+    let hasFreshCache = false;
+
+    const applyRegion = (
+      regionId: string,
+      source: LocationSource,
+      resolvedAt = Date.now(),
+    ) => {
+      const region = getMarineRegionById(regionId);
+      if (!region || ignore) {
+        return;
+      }
+
+      const nextPriority = getLocationSourcePriority(source);
+      if (nextPriority < locationPriorityRef.current) {
+        return;
+      }
+
+      locationPriorityRef.current = nextPriority;
+      setActiveRegion(region);
+      setLocationSource(source);
+      setIsResolvingExactLocation(false);
+
+      if (source === "server-header" || source === "server-ip") {
+        try {
+          window.localStorage.setItem(
+            regionStorageKey,
+            JSON.stringify({
+              id: region.id,
+              source,
+              resolvedAt,
+            } satisfies CachedRegion),
+          );
+        } catch {
+          // Ignore localStorage failures and keep the resolved region in memory.
+        }
+      }
+    };
+
+    const readCachedRegion = () => {
+      try {
+        const cachedRegion = window.localStorage.getItem(regionStorageKey);
+        if (!cachedRegion) {
+          return;
+        }
+
+        const parsedCache = JSON.parse(cachedRegion) as CachedRegion;
+        if (!parsedCache.id || !parsedCache.resolvedAt) {
+          return;
+        }
+
+        const isFresh = Date.now() - parsedCache.resolvedAt < regionCacheTtlMs;
+        if (!isFresh) {
+          return;
+        }
+
+        const region = getMarineRegionById(parsedCache.id);
+        if (!region) {
+          return;
+        }
+
+        hasFreshCache = true;
+        locationPriorityRef.current = getLocationSourcePriority("cache");
+        setActiveRegion(region);
+        setLocationSource("cache");
+      } catch {
+        // Ignore malformed cache and continue with live lookup.
+      }
+    };
+
+    const loadServerLocation = async () => {
+      if (hasFreshCache || ignore) {
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/location", { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error("Location lookup failed.");
+        }
+
+        const data = (await response.json()) as LocationApiResponse;
+
+        if (ignore) {
+          return;
+        }
+
+        applyRegion(data.regionId, data.source);
+      } catch {
+        if (!ignore) {
+          setLocationSource("default");
+          setIsResolvingExactLocation(false);
+        }
+      }
+    };
+
+    readCachedRegion();
+    void loadServerLocation();
+
+    return () => {
+      ignore = true;
     };
   }, []);
 
@@ -129,6 +285,47 @@ function DemoInterface() {
       clearTimeout(timeoutId);
     };
   }, [isTyping]);
+
+  useEffect(() => {
+    const currentPrompts = resolveMarinePromptSet(activeRegion).prompts;
+    if (
+      selectedPrompt &&
+      !currentPrompts.includes(selectedPrompt) &&
+      !isTyping &&
+      !response
+    ) {
+      setSelectedPrompt(null);
+    }
+  }, [activeRegion, isTyping, response, selectedPrompt]);
+
+  const handleUseExactLocation = () => {
+    if (!navigator.geolocation) {
+      return;
+    }
+
+    setIsResolvingExactLocation(true);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const match = findNearestMarineRegion(
+          position.coords.latitude,
+          position.coords.longitude,
+        );
+        locationPriorityRef.current = getLocationSourcePriority("browser");
+        setActiveRegion(match.region);
+        setLocationSource("browser");
+        setIsResolvingExactLocation(false);
+      },
+      () => {
+        setIsResolvingExactLocation(false);
+      },
+      {
+        enableHighAccuracy: false,
+        timeout: 8000,
+        maximumAge: 900000,
+      },
+    );
+  };
 
   const handlePromptClick = async (prompt: string) => {
     const requestId = ++requestIdRef.current;
@@ -184,6 +381,9 @@ function DemoInterface() {
     }
   };
 
+  const defaultPrompts = getDefaultMarinePromptSet().prompts;
+  const activePrompts = resolveMarinePromptSet(activeRegion).prompts ?? defaultPrompts;
+
   return (
     <div className="border border-border bg-card">
       {/* Terminal header */}
@@ -197,9 +397,26 @@ function DemoInterface() {
 
       {/* Prompt chips */}
       <div className="p-4 border-b border-border">
-        <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">Example queries</p>
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider">Example queries</p>
+          {locationSource === "browser" ? (
+            <span className="text-[11px] text-muted-foreground uppercase tracking-wider">
+              Using exact location
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={handleUseExactLocation}
+              disabled={isResolvingExactLocation}
+              title="Use your browser's exact location for more local prompts."
+              className="text-[11px] uppercase tracking-wider underline underline-offset-4 transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isResolvingExactLocation ? "Locating..." : "Use exact location"}
+            </button>
+          )}
+        </div>
         <div className="flex flex-wrap gap-2">
-          {examplePrompts.map((prompt) => (
+          {activePrompts.map((prompt) => (
             <PromptChip
               key={prompt}
               text={prompt}
