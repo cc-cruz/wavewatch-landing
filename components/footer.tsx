@@ -26,22 +26,22 @@ export function Footer() {
             <p className="text-xs text-muted-foreground uppercase tracking-wider mb-4">Product</p>
             <ul className="space-y-2">
               <li>
-                <Link href="#demo" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link href="/#demo" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Demo
                 </Link>
               </li>
               <li>
-                <Link href="#use-cases" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link href="/#use-cases" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Use Cases
                 </Link>
               </li>
               <li>
-                <Link href="#teams" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link href="/#teams" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   For Teams
                 </Link>
               </li>
               <li>
-                <Link href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link href="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Pricing
                 </Link>
               </li>

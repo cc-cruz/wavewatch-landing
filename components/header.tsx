@@ -21,16 +21,16 @@ export function Header() {
         </Link>
 
         <nav className="hidden md:flex items-center gap-6">
-          <Link href="#demo" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <Link href="/#demo" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
             Demo
           </Link>
-          <Link href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <Link href="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
             Pricing
           </Link>
-          <Link href="#use-cases" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <Link href="/#use-cases" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
             Use Cases
           </Link>
-          <Link href="#teams" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <Link href="/#teams" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
             For Teams
           </Link>
         </nav>

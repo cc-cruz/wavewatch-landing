@@ -17,6 +17,10 @@ function requireAuthEnv() {
     throw new Error(`Missing Neon Auth env: ${missing.join(", ")}`);
   }
 
+  if (!baseUrl || !cookieSecret) {
+    throw new Error("Missing Neon Auth env.");
+  }
+
   return {
     baseUrl,
     cookieSecret,
