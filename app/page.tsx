@@ -616,7 +616,7 @@ export default function Page() {
               </p>
               <div className="flex flex-wrap gap-3">
                 <Button asChild size="lg" className="px-6">
-                  <Link href="/console">Try it live</Link>
+                  <Link href="/app">Open the app</Link>
                 </Button>
                 <Button variant="outline" size="lg" className="px-6">
                   Deploy for your team
@@ -915,7 +915,7 @@ export default function Page() {
               </h2>
               <div className="flex flex-wrap gap-3 mt-8">
                 <Button asChild size="lg" className="px-6">
-                  <Link href="/console">Try the live demo</Link>
+                  <Link href="/app">Open the app</Link>
                 </Button>
                 <Button variant="outline" size="lg" className="px-6">
                   Talk to us about deployment
