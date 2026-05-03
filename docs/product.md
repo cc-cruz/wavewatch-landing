@@ -42,6 +42,21 @@ WaveWatch owns:
 - Message suppression when nothing meaningful changed.
 - Expert briefing structure.
 
+## Pricing Principle
+
+Sell the calibrated relationship, not raw credits.
+
+The buyer should understand plans as "how much of my ocean life can WaveWatch
+watch for me?" rather than "how many tokens do I get?" Internally, usage should
+still be metered so delivery cost, worker cost, and abuse controls stay real.
+
+Launch packaging:
+
+- Founder Annual: $99 first year for early access.
+- Core: $15/month for one person's basic water ritual.
+- Pro: $50/month for serious personal use.
+- Operator: $99/month for guides, charters, crews, and client-facing planning.
+
 ## Core User Loop
 
 1. User signs up.
@@ -124,4 +139,3 @@ It can expose:
 - Debug logs.
 
 End users should not see this model of the product.
-

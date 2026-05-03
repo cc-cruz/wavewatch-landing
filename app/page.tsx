@@ -11,6 +11,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { PricingSection } from "@/components/pricing-section";
 import Link from "next/link";
 
 function PromptChip({
@@ -618,15 +619,15 @@ export default function Page() {
                 <Button asChild size="lg" className="px-6">
                   <Link href="/app">Open the app</Link>
                 </Button>
-                <Button variant="outline" size="lg" className="px-6">
-                  Deploy for your team
+                <Button asChild variant="outline" size="lg" className="px-6">
+                  <Link href="/pricing">See pricing</Link>
                 </Button>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="border-b border-border bg-muted/20">
+        <section id="demo" className="border-b border-border bg-muted/20">
           <div className="max-w-5xl mx-auto px-6 py-16 md:py-24">
             <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
               Interface Preview
@@ -737,7 +738,9 @@ export default function Page() {
           </div>
         </section>
 
-        <section className="border-b border-border">
+        <PricingSection compact />
+
+        <section id="use-cases" className="border-b border-border">
           <div className="max-w-5xl mx-auto px-6 py-16 md:py-24">
             <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
               Use Cases
@@ -827,7 +830,7 @@ export default function Page() {
           </div>
         </section>
 
-        <section className="border-b border-border">
+        <section id="teams" className="border-b border-border">
           <div className="max-w-5xl mx-auto px-6 py-16 md:py-24">
             <div className="grid md:grid-cols-2 gap-12">
               <div>
@@ -917,8 +920,8 @@ export default function Page() {
                 <Button asChild size="lg" className="px-6">
                   <Link href="/app">Open the app</Link>
                 </Button>
-                <Button variant="outline" size="lg" className="px-6">
-                  Talk to us about deployment
+                <Button asChild variant="outline" size="lg" className="px-6">
+                  <Link href="/pricing">Talk to us about deployment</Link>
                 </Button>
               </div>
             </div>
