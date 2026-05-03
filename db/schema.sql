@@ -43,6 +43,86 @@ create table if not exists wavewatch.user_profiles (
     check (briefing_length in ('short', 'standard', 'detailed'))
 );
 
+create table if not exists wavewatch.billing_customers (
+  id uuid primary key default gen_random_uuid(),
+  user_profile_id uuid not null unique references wavewatch.user_profiles(id) on delete cascade,
+  stripe_customer_id text not null unique,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists wavewatch.subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  user_profile_id uuid not null references wavewatch.user_profiles(id) on delete cascade,
+  stripe_customer_id text not null,
+  stripe_subscription_id text not null unique,
+  stripe_price_id text not null,
+  stripe_product_id text not null,
+  plan_key text not null,
+  status text not null,
+  current_period_start timestamptz,
+  current_period_end timestamptz,
+  cancel_at_period_end boolean not null default false,
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint subscriptions_plan_key_check
+    check (plan_key in ('founder', 'core', 'pro', 'operator')),
+  constraint subscriptions_status_check
+    check (
+      status in (
+        'incomplete',
+        'incomplete_expired',
+        'trialing',
+        'active',
+        'past_due',
+        'canceled',
+        'unpaid',
+        'paused'
+      )
+    )
+);
+
+create index if not exists subscriptions_user_profile_id_status_idx
+  on wavewatch.subscriptions(user_profile_id, status);
+
+create table if not exists wavewatch.usage_events (
+  id uuid primary key default gen_random_uuid(),
+  user_profile_id uuid not null references wavewatch.user_profiles(id) on delete cascade,
+  subscription_id uuid references wavewatch.subscriptions(id) on delete set null,
+  event_type text not null,
+  quantity integer not null default 1,
+  usage_month date not null,
+  idempotency_key text unique,
+  status text not null default 'completed',
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  constraint usage_events_quantity_check
+    check (quantity > 0),
+  constraint usage_events_event_type_check
+    check (
+      event_type in (
+        'assistant_ask',
+        'forecast_run',
+        'proactive_text',
+        'hazard_scan',
+        'operator_review'
+      )
+    ),
+  constraint usage_events_status_check
+    check (status in ('pending', 'completed', 'failed'))
+);
+
+create index if not exists usage_events_user_profile_month_type_idx
+  on wavewatch.usage_events(user_profile_id, usage_month, event_type);
+
+create table if not exists wavewatch.stripe_webhook_events (
+  stripe_event_id text primary key,
+  event_type text not null,
+  processed_at timestamptz not null default now(),
+  payload jsonb not null
+);
+
 create table if not exists wavewatch.saved_spots (
   id uuid primary key default gen_random_uuid(),
   user_profile_id uuid not null references wavewatch.user_profiles(id) on delete cascade,
