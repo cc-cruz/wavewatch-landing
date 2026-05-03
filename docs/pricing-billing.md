@@ -74,12 +74,24 @@ from stable lookup keys and internal plan keys.
 
 Required products:
 
-| Product | Product key | Prices |
-| --- | --- | --- |
-| WaveWatch Founder | `wavewatch_founder` | `wavewatch_founder_annual_v1` |
-| WaveWatch Core | `wavewatch_core` | `wavewatch_core_monthly_v1`, `wavewatch_core_annual_v1` |
-| WaveWatch Pro | `wavewatch_pro` | `wavewatch_pro_monthly_v1`, `wavewatch_pro_annual_v1` |
-| WaveWatch Operator | `wavewatch_operator` | `wavewatch_operator_monthly_v1`, `wavewatch_operator_annual_v1` |
+| Product | Product key | Live product ID | Prices |
+| --- | --- | --- | --- |
+| WaveWatch Founder | `wavewatch_founder` | `prod_URnrEcknTy41ER` | `wavewatch_founder_annual_v1` |
+| WaveWatch Core | `wavewatch_core` | `prod_URnrF975jTv7yr` | `wavewatch_core_monthly_v1`, `wavewatch_core_annual_v1` |
+| WaveWatch Pro | `wavewatch_pro` | `prod_URnrIvZAz1mFIN` | `wavewatch_pro_monthly_v1`, `wavewatch_pro_annual_v1` |
+| WaveWatch Operator | `wavewatch_operator` | `prod_URnrbHNZhFkXXs` | `wavewatch_operator_monthly_v1`, `wavewatch_operator_annual_v1` |
+
+Live Stripe prices created on May 3, 2026:
+
+| Env var | Lookup key | Live price ID | Amount |
+| --- | --- | --- | --- |
+| `STRIPE_PRICE_WAVEWATCH_FOUNDER_ANNUAL` | `wavewatch_founder_annual_v1` | `price_1TSuFrGTikjBxb93gac1UUXT` | $99/year |
+| `STRIPE_PRICE_WAVEWATCH_CORE_MONTHLY` | `wavewatch_core_monthly_v1` | `price_1TSuFrGTikjBxb93yhnFUTVL` | $15/month |
+| `STRIPE_PRICE_WAVEWATCH_CORE_ANNUAL` | `wavewatch_core_annual_v1` | `price_1TSuFsGTikjBxb93Jj9ySs0b` | $120/year |
+| `STRIPE_PRICE_WAVEWATCH_PRO_MONTHLY` | `wavewatch_pro_monthly_v1` | `price_1TSuFtGTikjBxb93vmXdkA0e` | $50/month |
+| `STRIPE_PRICE_WAVEWATCH_PRO_ANNUAL` | `wavewatch_pro_annual_v1` | `price_1TSuFtGTikjBxb93H0e6mta4` | $480/year |
+| `STRIPE_PRICE_WAVEWATCH_OPERATOR_MONTHLY` | `wavewatch_operator_monthly_v1` | `price_1TSuFuGTikjBxb93617fKEyF` | $99/month |
+| `STRIPE_PRICE_WAVEWATCH_OPERATOR_ANNUAL` | `wavewatch_operator_annual_v1` | `price_1TSuFvGTikjBxb935tbGHA4G` | $948/year |
 
 Example Stripe CLI creation flow:
 
@@ -243,6 +255,12 @@ Optional if lookup keys are not enough:
 
 Prefer lookup keys in code and database records. Use explicit price env vars
 only as a safety fallback during early deploys.
+
+Vercel env state as of May 3, 2026:
+
+- `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_APP_URL`, and all `STRIPE_PRICE_WAVEWATCH_*` values are set on `deepcurrent-labs/wavewatch-landing-production`.
+- The same values are also set on `carsons-projects-dfe98393/wavewatch-landing`, which still posts a GitHub PR preview check.
+- `STRIPE_WEBHOOK_SECRET` is not set yet because the webhook endpoint has not been implemented or registered in Stripe.
 
 ## Implementation Order
 
