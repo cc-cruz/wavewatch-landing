@@ -32,9 +32,13 @@ export default function PricingPage() {
                 more of your planning loop.
               </p>
               <div className="flex flex-wrap gap-3">
-                <Button asChild size="lg">
-                  <Link href="/auth/sign-up?plan=pro">Start with Pro</Link>
-                </Button>
+                <form action="/api/billing/checkout" method="post">
+                  <input type="hidden" name="planKey" value="pro" />
+                  <input type="hidden" name="cadence" value="monthly" />
+                  <Button type="submit" size="lg">
+                    Start with Pro
+                  </Button>
+                </form>
                 <Button asChild variant="outline" size="lg">
                   <Link href="/app">Open the app</Link>
                 </Button>

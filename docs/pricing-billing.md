@@ -137,6 +137,12 @@ Server behavior:
    - `plan_key`
 7. Redirect the user to Stripe Checkout.
 
+Implementation status:
+
+- `POST /api/billing/checkout` creates or reuses the Stripe Customer, creates a subscription-mode Checkout Session, and redirects to Stripe.
+- Unauthenticated buyers get short-lived pending-plan cookies and are sent to Neon Auth sign-up.
+- `/app` resumes the pending checkout after auth so plan intent survives sign-up.
+
 Success and cancel URLs:
 
 - Success: `/onboarding?checkout=success`
@@ -147,6 +153,12 @@ Success and cancel URLs:
 Route:
 
 - `POST /api/billing/webhook`
+
+Live Stripe webhook endpoint:
+
+- Endpoint ID: `we_1TSuYeGTikjBxb93lwsIVzaX`
+- URL: `https://www.wavewatch.dev/api/billing/webhook`
+- Secret env var: `STRIPE_WEBHOOK_SECRET`
 
 Handle these events first:
 
@@ -179,6 +191,11 @@ App placement:
 - `/account/settings` should expose "Manage billing".
 - Plan upgrade prompts should link to checkout.
 - Cancellation and card changes should stay in the Stripe portal for the MVP.
+
+Implementation status:
+
+- `POST /api/billing/portal` redirects authenticated users with a Stripe Customer to the Stripe Customer Portal.
+- `/account/settings` includes a Manage billing form.
 
 ## Onboarding Integration
 
@@ -214,6 +231,8 @@ Add billing and usage tables to the `wavewatch` schema:
 - `stripe_webhook_events`: idempotency table for processed webhook events.
 
 The app should not infer entitlements from UI strings. Use `plan_key`.
+
+Production schema was applied on May 3, 2026.
 
 ## Gating Map
 
@@ -260,17 +279,17 @@ Vercel env state as of May 3, 2026:
 
 - `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_APP_URL`, and all `STRIPE_PRICE_WAVEWATCH_*` values are set on `deepcurrent-labs/wavewatch-landing-production`.
 - The same values are also set on `carsons-projects-dfe98393/wavewatch-landing`, which still posts a GitHub PR preview check.
-- `STRIPE_WEBHOOK_SECRET` is not set yet because the webhook endpoint has not been implemented or registered in Stripe.
+- `STRIPE_WEBHOOK_SECRET` is set on both Vercel projects for Production and Preview.
 
 ## Implementation Order
 
-1. Add `/pricing` and public pricing cards.
-2. Create Stripe products and prices with lookup keys.
-3. Add billing tables.
-4. Add checkout route.
-5. Add webhook route and idempotent subscription sync.
-6. Add billing portal route.
-7. Preserve selected plan through sign-up.
+1. Add `/pricing` and public pricing cards. Done.
+2. Create Stripe products and prices with lookup keys. Done.
+3. Add billing tables. Done.
+4. Add checkout route. Done.
+5. Add webhook route and idempotent subscription sync. Done.
+6. Add billing portal route. Done.
+7. Preserve selected plan through sign-up. Done.
 8. Wire onboarding to active plan entitlements.
 9. Gate saved spots, rituals, asks, nowcasts, and proactive sends.
 10. Add account billing status and upgrade prompts.

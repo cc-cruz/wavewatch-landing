@@ -1,5 +1,4 @@
 import { ArrowRight, Check, Radio, Waves } from "lucide-react";
-import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { founderOffer, gatingRows, pricingTiers } from "@/lib/pricing";
@@ -40,6 +39,13 @@ export function PricingSection({ compact = false }: PricingSectionProps) {
               </span>
             </div>
             <p className="text-sm text-muted-foreground">{founderOffer.summary}</p>
+            <CheckoutForm
+              planKey={founderOffer.key}
+              cadence={founderOffer.billingCadence}
+              label="Join Founder"
+              variant="outline"
+              className="mt-5"
+            />
           </div>
         </div>
 
@@ -87,16 +93,13 @@ export function PricingSection({ compact = false }: PricingSectionProps) {
                 ))}
               </ul>
 
-              <Button
-                asChild
+              <CheckoutForm
+                planKey={tier.key}
+                cadence="monthly"
+                label={tier.cta}
                 variant={tier.featured ? "default" : "outline"}
-                className="mt-auto w-full"
-              >
-                <Link href={tier.href}>
-                  {tier.cta}
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </Link>
-              </Button>
+                className="mt-auto"
+              />
             </div>
           ))}
         </div>
@@ -140,6 +143,31 @@ export function PricingSection({ compact = false }: PricingSectionProps) {
         ) : null}
       </div>
     </section>
+  );
+}
+
+function CheckoutForm({
+  planKey,
+  cadence,
+  label,
+  variant,
+  className,
+}: {
+  planKey: string;
+  cadence: string;
+  label: string;
+  variant: "default" | "outline";
+  className?: string;
+}) {
+  return (
+    <form action="/api/billing/checkout" method="post" className={className}>
+      <input type="hidden" name="planKey" value={planKey} />
+      <input type="hidden" name="cadence" value={cadence} />
+      <Button type="submit" variant={variant} className="w-full">
+        {label}
+        <ArrowRight className="h-4 w-4" aria-hidden="true" />
+      </Button>
+    </form>
   );
 }
 

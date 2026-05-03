@@ -147,6 +147,9 @@ Auth itself lives in Neon's managed `neon_auth` schema. WaveWatch-owned profile 
 | `app/auth/[path]/page.tsx` | Neon Auth UI flows |
 | `app/account/[path]/page.tsx` | Neon Auth account settings |
 | `app/api/auth/[...path]/route.ts` | Neon Auth API proxy |
+| `app/api/billing/checkout/route.ts` | Stripe Checkout Session creation |
+| `app/api/billing/portal/route.ts` | Stripe Customer Portal redirect |
+| `app/api/billing/webhook/route.ts` | Stripe webhook verification and subscription sync |
 | `app/console/page.tsx` | Internal ops console |
 | `app/api/pickaxe/route.ts` | Forecast worker proxy, later auth/context aware |
 | `app/api/location/route.ts` | Region helper for onboarding/defaults |

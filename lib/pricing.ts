@@ -1,7 +1,8 @@
+export type PlanKey = "founder" | "core" | "pro" | "operator";
 export type BillingCadence = "monthly" | "annual" | "launch";
 
 export type PricingTier = {
-  key: "core" | "pro" | "operator";
+  key: Exclude<PlanKey, "founder">;
   name: string;
   eyebrow: string;
   price: string;
@@ -25,10 +26,13 @@ export type PricingTier = {
 };
 
 export const founderOffer = {
+  key: "founder" as const,
   name: "Founder Annual",
   price: "$99",
   cadence: "first year",
+  billingCadence: "launch" as const,
   lookupKey: "wavewatch_founder_annual_v1",
+  priceEnv: "STRIPE_PRICE_WAVEWATCH_FOUNDER_ANNUAL",
   summary:
     "Limited launch access for early ocean people who want the number now and are willing to help shape the rituals.",
 };
@@ -120,6 +124,120 @@ export const pricingTiers: PricingTier[] = [
     ],
   },
 ];
+
+export type BillingPriceConfig = {
+  planKey: PlanKey;
+  cadence: BillingCadence;
+  lookupKey: string;
+  priceEnv: string;
+};
+
+export const billingPriceConfig: BillingPriceConfig[] = [
+  {
+    planKey: "founder",
+    cadence: "launch",
+    lookupKey: founderOffer.lookupKey,
+    priceEnv: founderOffer.priceEnv,
+  },
+  {
+    planKey: "core",
+    cadence: "monthly",
+    lookupKey: "wavewatch_core_monthly_v1",
+    priceEnv: "STRIPE_PRICE_WAVEWATCH_CORE_MONTHLY",
+  },
+  {
+    planKey: "core",
+    cadence: "annual",
+    lookupKey: "wavewatch_core_annual_v1",
+    priceEnv: "STRIPE_PRICE_WAVEWATCH_CORE_ANNUAL",
+  },
+  {
+    planKey: "pro",
+    cadence: "monthly",
+    lookupKey: "wavewatch_pro_monthly_v1",
+    priceEnv: "STRIPE_PRICE_WAVEWATCH_PRO_MONTHLY",
+  },
+  {
+    planKey: "pro",
+    cadence: "annual",
+    lookupKey: "wavewatch_pro_annual_v1",
+    priceEnv: "STRIPE_PRICE_WAVEWATCH_PRO_ANNUAL",
+  },
+  {
+    planKey: "operator",
+    cadence: "monthly",
+    lookupKey: "wavewatch_operator_monthly_v1",
+    priceEnv: "STRIPE_PRICE_WAVEWATCH_OPERATOR_MONTHLY",
+  },
+  {
+    planKey: "operator",
+    cadence: "annual",
+    lookupKey: "wavewatch_operator_annual_v1",
+    priceEnv: "STRIPE_PRICE_WAVEWATCH_OPERATOR_ANNUAL",
+  },
+];
+
+export function normalizePlanKey(value: string | null | undefined): PlanKey {
+  if (
+    value === "founder" ||
+    value === "core" ||
+    value === "pro" ||
+    value === "operator"
+  ) {
+    return value;
+  }
+
+  return "pro";
+}
+
+export function normalizeBillingCadence(
+  planKey: PlanKey,
+  value: string | null | undefined,
+): BillingCadence {
+  if (planKey === "founder") {
+    return "launch";
+  }
+
+  if (value === "annual") {
+    return "annual";
+  }
+
+  return "monthly";
+}
+
+export function getBillingPriceConfig(
+  planKey: PlanKey,
+  cadence: BillingCadence,
+) {
+  const normalizedCadence = planKey === "founder" ? "launch" : cadence;
+  const config = billingPriceConfig.find(
+    (priceConfig) =>
+      priceConfig.planKey === planKey &&
+      priceConfig.cadence === normalizedCadence,
+  );
+
+  if (!config) {
+    throw new Error(`Unsupported billing plan: ${planKey}/${cadence}`);
+  }
+
+  return config;
+}
+
+export function getPlanKeyForPrice({
+  priceId,
+  lookupKey,
+}: {
+  priceId?: string | null;
+  lookupKey?: string | null;
+}): PlanKey | null {
+  const config = billingPriceConfig.find(
+    (priceConfig) =>
+      priceConfig.lookupKey === lookupKey ||
+      Boolean(priceId && process.env[priceConfig.priceEnv] === priceId),
+  );
+
+  return config?.planKey ?? null;
+}
 
 export const gatingRows = [
   {
