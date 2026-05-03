@@ -37,11 +37,16 @@ export function Header() {
 
         <div className="flex items-center gap-3">
           <ThemeToggle />
-          <Button variant="ghost" size="sm" className="hidden sm:inline-flex">
-            Log in
+          <Button
+            variant="ghost"
+            size="sm"
+            className="hidden sm:inline-flex"
+            asChild
+          >
+            <Link href="/auth/sign-in">Log in</Link>
           </Button>
           <Button asChild size="sm">
-            <Link href="/console">Try it live</Link>
+            <Link href="/app">Open app</Link>
           </Button>
         </div>
       </div>
